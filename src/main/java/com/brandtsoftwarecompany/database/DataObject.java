@@ -3,6 +3,7 @@ package com.brandtsoftwarecompany.database;
 import android.content.Context;
 
 /**
+ * Extend this class to create classes that map to database tables.
  * Created by brandt on 4/19/16.
  */
 public abstract class DataObject implements CrudObject {
@@ -21,7 +22,7 @@ public abstract class DataObject implements CrudObject {
 
         if (isSaved()) {
             Query query = new Query();
-            query.addAndWhereClause(table.getPrimaryKeyColumn() + "=?", getId());
+            query.andWhere(table.getPrimaryKeyColumn() + "=?", getId());
             return DBHelper.delete(table, query) == 1;
         } else {
             return true;
@@ -34,7 +35,7 @@ public abstract class DataObject implements CrudObject {
 
         if (isSaved()) {
             Query query = new Query();
-            query.addAndWhereClause(table.getPrimaryKeyColumn() + "=?", getId());
+            query.andWhere(table.getPrimaryKeyColumn() + "=?", getId());
             return DBHelper.update(table, table.getContentValues(this), query) == 1;
         } else {
             int id = (int) DBHelper.insert(table, table.getContentValues(this));

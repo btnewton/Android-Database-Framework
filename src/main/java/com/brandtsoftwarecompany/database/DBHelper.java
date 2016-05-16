@@ -91,7 +91,7 @@ public class DBHelper extends SQLiteOpenHelper {
         return getWritable(table.getContext()).update(table.getName(), contentValues, query.getWhereClause(), query.getWhereArgs());
     }
     public static Cursor select(Table table, Query query) {
-        return getReadable(table.getContext()).query(table.getName(), table.getColumns(), query.getWhereClause(), query.getWhereArgs(), null, null, query.getOrderBy(), query.getLimit());
+        return getReadable(table.getContext()).query(query.isDistinct(), table.getName(), table.getColumns(), query.getWhereClause(), query.getWhereArgs(), query.getGroupBy(), query.getHaving(), query.getOrderBy(), query.getLimit());
     }
 
     public static void truncate(Table table) {

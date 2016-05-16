@@ -25,24 +25,27 @@ public class DataObjectManager <K extends DataObject> {
     public K[] all() {
         return all(new Query());
     }
-//    public K[] all(Query query) {
-//        return (K[]) DBHelper.selectMultiple(table, query);
-//    }
-//    public K[] all(Query query) {
-//        return (K[]) DBHelper.selectMultiple(table, query);
-//    }
 
     @SuppressWarnings("unchecked")
     public K[] all(Query query) {
-        Cursor cursor = DBHelper.select(table, query);
+        Cursor cursor = null;
+        K[] dataObjects = (K[]) Array.newInstance(type, 0);
 
-        K[] dataObjects = (K[]) Array.newInstance(type, cursor.getCount());
+        try {
+            cursor = DBHelper.select(table, query);
 
-        cursor.moveToFirst();
+            dataObjects = (K[]) Array.newInstance(type, cursor.getCount());
 
-        for (int i = 0; i < dataObjects.length; i++) {
-            dataObjects[i] = (K) table.fromCursor(cursor);
-            cursor.moveToNext();
+            cursor.moveToFirst();
+
+            for (int i = 0; i < dataObjects.length; i++) {
+                dataObjects[i] = (K) table.fromCursor(cursor);
+                cursor.moveToNext();
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
         return dataObjects;
@@ -67,31 +70,15 @@ public class DataObjectManager <K extends DataObject> {
         }
 
         return dataObject;
-
-    }
-//    public static DataObject[] selectMultiple(Table table, Query query) {
-//        Cursor cursor = selectToCursor(table, query);
-//
-//        DataObject[] dataObjects = new DataObject[cursor.getCount()];
-//
-//        cursor.moveToFirst();
-//
-//        for (int i = 0; i < dataObjects.length; i++) {
-//            dataObjects[i] = table.fromCursor(cursor);
-//            cursor.moveToNext();
-//        }
-//
-//        return dataObjects;
-//    }
-
-    public boolean deleteAll(Query query) {
-        return DBHelper.delete(table, query) > 0;
     }
 
-    @SuppressWarnings("unchecked")
+    public int deleteAll(Query query) {
+        return DBHelper.delete(table, query);
+    }
+
     public K findById(int id) {
         Query query = new Query();
-        query.addAndWhereClause(table.getPrimaryKeyColumn() + "=?", id);
-        return (K) select(query);
+        query.andWhere(table.getPrimaryKeyColumn() + "=?", id);
+        return select(query);
     }
 }

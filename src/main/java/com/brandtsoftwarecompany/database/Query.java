@@ -4,27 +4,25 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * Interfaces with Android
  * Created by brandt on 2/10/16.
  */
 public class Query {
 
     private final static int AND_OP = 0;
     private final static int OR_OP = 1;
-    public final static int DEFAULT_RESULT_LIMIT = 500;
 
     public final static int COLLATION_BINARY = 0;
     public final static int COLLATION_NOCASE = 1;
     public final static int COLLATION_RTRIM = 2;
 
-    private int limit;
+    private Integer limit;
     private StringBuilder whereClause = new StringBuilder();
     private String orderBy;
     private List<String> whereArgs = new ArrayList<>();
     private boolean distinct;
-
-    public Query() {
-        limit = DEFAULT_RESULT_LIMIT;
-    }
+    private String groupBy;
+    private String having;
 
     public Query setDistinct(boolean distinct) {
         this.distinct = distinct;
@@ -40,26 +38,26 @@ public class Query {
         return this;
     }
 
-    public Query addAndWhereClause(String whereClause) {
-        return addAndWhereClause(whereClause, null);
+    public Query andWhere(String whereClause) {
+        return andWhere(whereClause, null);
     }
-    public Query addAndWhereClause(String whereClause, String whereArg) {
-        return addWhereClause(AND_OP, whereClause, whereArg);
+    public Query andWhere(String whereClause, String whereArg) {
+        return where(AND_OP, whereClause, whereArg);
     }
-    public Query addAndWhereClause(String whereClause, int whereArg) {
-        return addAndWhereClause(whereClause, Integer.toString(whereArg));
+    public Query andWhere(String whereClause, int whereArg) {
+        return andWhere(whereClause, Integer.toString(whereArg));
     }
-    public Query addAndWhereClause(String whereClause, double whereArg) {
-        return addAndWhereClause(whereClause, Double.toString(whereArg));
+    public Query andWhere(String whereClause, double whereArg) {
+        return andWhere(whereClause, Double.toString(whereArg));
     }
-    public Query addOrWhereClause(String whereClause) {
-        return addOrWhereClause(whereClause, null);
+    public Query orWhere(String whereClause) {
+        return orWhere(whereClause, null);
     }
-    public Query addOrWhereClause(String whereClause, String whereArg) {
-        return addWhereClause(OR_OP, whereClause, whereArg);
+    public Query orWhere(String whereClause, String whereArg) {
+        return where(OR_OP, whereClause, whereArg);
     }
 
-    private Query addWhereClause(int operator, String whereClause, String whereArg) {
+    private Query where(int operator, String whereClause, String whereArg) {
         if (this.whereClause.length() > 0) {
             this.whereClause.append(getOperator(operator));
         }
@@ -68,11 +66,6 @@ public class Query {
         if (whereArg != null) {
             whereArgs.add(whereArg);
         }
-        return this;
-    }
-
-    public Query overrideDefaultResultLimit(int limit) {
-        this.limit = limit;
         return this;
     }
 
@@ -90,6 +83,24 @@ public class Query {
             whereArgs[i] = this.whereArgs.get(i);
         }
         return whereArgs;
+    }
+
+
+    public void setGroupBy(String column) {
+        groupBy = column;
+    }
+    public void setGroupBy(String column1, String column2) {
+        groupBy = column1 + "," + column2;
+    }
+    public String getGroupBy() {
+        return groupBy;
+    }
+
+    public void setHaving(String having) {
+        this.having = having;
+    }
+    public String getHaving() {
+        return having;
     }
 
     public Query setOrderBy(String orderBy, boolean orderAsc) {
@@ -125,7 +136,11 @@ public class Query {
     }
 
     public String getLimit() {
-        return Integer.toString(limit);
+        return hasLimit()? Integer.toString(limit) : null;
+    }
+
+    public boolean hasLimit() {
+        return limit != null;
     }
 
     private String getOperator(int operatorCode) {
@@ -144,8 +159,9 @@ public class Query {
                 if (whereClause.charAt(i) == '?') {
                     String arg = whereArgs.get(argCounter);
 
-                    if (!arg.matches("[-+]?\\d*\\.?\\d+"))
+                    if (!arg.matches("[-+]?\\d*\\.?\\d+")) {
                         arg = "'" + arg + "'";
+                    }
 
                     query.append(arg);
                     argCounter++;
