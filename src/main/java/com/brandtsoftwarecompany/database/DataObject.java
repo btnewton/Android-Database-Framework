@@ -6,7 +6,6 @@ import android.content.Context;
 import com.brandtsoftwarecompany.database.util.DateHelper;
 
 import java.util.Date;
-
 /**
  * Extend this class to create classes that map to database tables.
  * Created by brandt on 4/19/16.
@@ -70,6 +69,7 @@ public abstract class DataObject implements CrudObject {
             contentValues.put(Table.CREATED_AT, DateHelper.toTimestamp(createdAt));
 
             int id = (int) DBHelper.insert(table, contentValues);
+
             setId(id);
             return id != -1;
         }

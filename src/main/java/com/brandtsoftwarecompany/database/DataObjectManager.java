@@ -42,6 +42,7 @@ public class DataObjectManager <K extends DataObject> {
             cursor.moveToFirst();
 
             for (int i = 0; i < dataObjects.length; i++) {
+
                 K dataObject = (K) table.fromCursor(cursor);
                 applyTimestamps(dataObject, cursor);
                 dataObjects[i] = dataObject;
